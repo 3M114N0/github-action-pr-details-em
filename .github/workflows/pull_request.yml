@@ -14,6 +14,9 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v2
 
+      - name: Actualizar el repositorio
+        run: git fetch --prune --unshallow
+
       - name: Hello World
         run: echo "Hello World"
 
@@ -22,4 +25,8 @@ jobs:
           echo "Autor del PR: ${{ github.event.pull_request.user.login }}"
           echo "Último Commit: ${{ github.event.pull_request.head.sha }}"
           echo "Cambios desde el último Commit al branch predeterminado:"
-          git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }}
+          if [ -n "$(git rev-parse ${{ github.event.pull_request.head.sha }})" ] && [ -n "$(git rev-parse ${{ github.event.pull_request.base.sha }})" ]; then
+            git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }}
+          else
+            echo "No se pueden calcular los cambios."
+          fi
